@@ -77,6 +77,16 @@ public class LoginActivity extends AppCompatActivity {
     }
 
     private void navigateToHome(String userId) {
+        // Check if the logged-in email is the admin email
+        FirebaseUser currentUser = FirebaseManager.getCurrentUser();
+        if (currentUser != null && "admin@gmail.com".equals(currentUser.getEmail())) {
+            // Redirect to Admin Portal
+            startActivity(new Intent(LoginActivity.this, AdminActivity.class));
+            finish();
+            return;
+        }
+
+        // For regular users, check role from Firestore
         FirebaseManager.getUserFromFirestore(userId, task -> {
             if (task.isSuccessful()) {
                 DocumentSnapshot document = task.getResult();

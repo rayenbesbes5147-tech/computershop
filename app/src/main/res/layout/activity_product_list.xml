@@ -1,44 +1,164 @@
 <?xml version="1.0" encoding="utf-8"?>
-<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+<LinearLayout
+    xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     android:orientation="vertical"
-    android:padding="15dp">
+    android:background="@color/background"
+    android:padding="0dp">
 
+    <!-- Purple Top App Bar with TIJARA -->
     <LinearLayout
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:orientation="horizontal"
-        android:layout_marginBottom="15dp">
+        android:orientation="vertical"
+        android:background="@color/primary"
+        android:elevation="4dp">
 
-        <SearchView
-            android:id="@+id/searchView"
-            android:layout_width="0dp"
-            android:layout_height="wrap_content"
-            android:layout_weight="1"
-            android:layout_marginEnd="10dp" />
+        <!-- TIJARA Header -->
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="?attr/actionBarSize"
+            android:orientation="horizontal"
+            android:gravity="center_vertical"
+            android:paddingStart="16dp"
+            android:paddingEnd="16dp">
 
-        <Button
-            android:id="@+id/cartBtn"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:text="Cart"
-            android:background="@drawable/button_background"
-            android:textColor="@android:color/white"
-            android:layout_marginEnd="10dp" />
+            <!-- TIJARA Text -->
+            <TextView
+                android:layout_width="131dp"
+                android:layout_height="wrap_content"
+                android:layout_weight="1"
+                android:text="TIJARA"
+                android:textColor="@android:color/white"
+                android:textSize="28sp"
+                android:textStyle="bold" />
 
-        <Button
-            android:id="@+id/logoutBtn"
-            android:layout_width="wrap_content"
+            <!-- Cart Icon -->
+            <androidx.appcompat.widget.SearchView
+                android:id="@+id/searchView"
+                android:layout_width="128dp"
+                android:layout_height="36dp"
+                android:background="@drawable/searchview_background"
+                android:iconifiedByDefault="false"
+                android:queryHint="Search products..."
+                app:queryBackground="@android:color/transparent"
+                app:searchHintIcon="@null"
+                app:searchIcon="@drawable/ic_search" />
+
+            <RelativeLayout
+                android:layout_width="40dp"
+                android:layout_height="40dp"
+                android:layout_marginEnd="8dp">
+
+                <ImageButton
+                    android:id="@+id/cartBtn"
+                    android:layout_width="40dp"
+                    android:layout_height="40dp"
+                    android:background="?attr/selectableItemBackgroundBorderless"
+                    android:src="@drawable/ic_shopping_cart"
+                    android:contentDescription="Shopping Cart"
+                    android:scaleType="centerInside"
+                    app:tint="@android:color/white" />
+
+                <TextView
+                    android:id="@+id/cartBadge"
+                    android:layout_width="18dp"
+                    android:layout_height="18dp"
+                    android:layout_alignTop="@id/cartBtn"
+                    android:layout_alignEnd="@id/cartBtn"
+                    android:background="@drawable/badge_background"
+                    android:textColor="@android:color/white"
+                    android:textSize="10sp"
+                    android:gravity="center"
+                    android:text="0"
+                    android:visibility="gone" />
+            </RelativeLayout>
+
+            <!-- Logout Icon -->
+            <ImageButton
+                android:id="@+id/logoutBtn"
+                android:layout_width="40dp"
+                android:layout_height="40dp"
+                android:background="?attr/selectableItemBackgroundBorderless"
+                android:src="@drawable/ic_logout"
+                android:contentDescription="Logout"
+                android:scaleType="centerInside"
+                app:tint="@android:color/white" />
+
+        </LinearLayout>
+
+        <!-- Search Bar -->
+        <LinearLayout
+            android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:text="Logout"
-            android:background="#FFFF6B6B"
-            android:textColor="@android:color/white" />
+            android:orientation="horizontal"
+            android:gravity="center_vertical"
+            android:paddingStart="16dp"
+            android:paddingEnd="16dp"
+            android:paddingBottom="12dp">
+
+        </LinearLayout>
+
     </LinearLayout>
 
+    <!-- Loading State -->
+    <com.google.android.material.progressindicator.CircularProgressIndicator
+        android:id="@+id/progressBar"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_gravity="center"
+        android:layout_marginTop="48dp"
+        android:indeterminate="true"
+        app:indicatorColor="@color/primary"
+        android:visibility="gone" />
+
+    <!-- Empty State -->
+    <LinearLayout
+        android:id="@+id/emptyState"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:orientation="vertical"
+        android:gravity="center"
+        android:visibility="gone"
+        android:padding="48dp">
+
+        <ImageView
+            android:layout_width="96dp"
+            android:layout_height="96dp"
+            android:src="@drawable/ic_empty_cart"
+            android:contentDescription="No products"
+            app:tint="@color/primary" />
+
+        <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="No Products Found"
+            android:textSize="20sp"
+            android:textStyle="bold"
+            android:textColor="@color/text_primary"
+            android:layout_marginBottom="8dp" />
+
+        <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="Try adjusting your search criteria"
+            android:textSize="14sp"
+            android:textColor="@color/text_secondary" />
+
+    </LinearLayout>
+
+    <!-- Product Grid -->
     <androidx.recyclerview.widget.RecyclerView
         android:id="@+id/productsRecyclerView"
         android:layout_width="match_parent"
-        android:layout_height="match_parent" />
+        android:layout_height="0dp"
+        android:layout_weight="1"
+        android:paddingStart="8dp"
+        android:paddingEnd="8dp"
+        android:paddingTop="16dp"
+        android:paddingBottom="8dp"
+        android:clipToPadding="false" />
 
 </LinearLayout>

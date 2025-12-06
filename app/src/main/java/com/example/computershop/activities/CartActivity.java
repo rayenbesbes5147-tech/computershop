@@ -1,7 +1,7 @@
 package com.example.computershop.activities;
 
 import android.os.Bundle;
-import android.widget.Button;
+import android.view.View;
 import android.widget.TextView;
 import android.widget.Toast;
 
@@ -14,7 +14,7 @@ import com.example.computershop.adapters.CartAdapter;
 import com.example.computershop.models.CartItem;
 import com.example.computershop.models.Product;
 import com.example.computershop.utils.FirebaseManager;
-import com.google.firebase.firestore.QuerySnapshot;
+import com.google.android.material.button.MaterialButton;
 
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -26,20 +26,42 @@ public class CartActivity extends AppCompatActivity {
     private CartAdapter cartAdapter;
     private List<CartItem> cartItems;
     private Map<String, Product> productMap;
-    private TextView totalPriceText;
-    private Button checkoutBtn;
-    private Button backBtn;
+    private TextView totalPriceText, subtotalText, shippingText;
+    private MaterialButton checkoutBtn;
+    private View emptyCartState;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_cart);
 
+        initializeViews();
+        setupRecyclerView();
+        loadCart();
+
+        checkoutBtn.setOnClickListener(v -> {
+            if (cartItems.isEmpty()) {
+                Toast.makeText(CartActivity.this, "Your cart is empty", Toast.LENGTH_SHORT).show();
+            } else {
+                Toast.makeText(CartActivity.this, "Order placed successfully!", Toast.LENGTH_SHORT).show();
+                // Clear cart after successful order
+                clearCart();
+            }
+        });
+
+        findViewById(R.id.backBtn).setOnClickListener(v -> finish());
+    }
+
+    private void initializeViews() {
         cartRecyclerView = findViewById(R.id.cartRecyclerView);
         totalPriceText = findViewById(R.id.totalPriceText);
+        subtotalText = findViewById(R.id.subtotalText);
+        shippingText = findViewById(R.id.shippingText);
         checkoutBtn = findViewById(R.id.checkoutBtn);
-        backBtn = findViewById(R.id.backBtn);
+        emptyCartState = findViewById(R.id.emptyCartState);
+    }
 
+    private void setupRecyclerView() {
         cartItems = new ArrayList<>();
         productMap = new HashMap<>();
 
@@ -49,39 +71,40 @@ public class CartActivity extends AppCompatActivity {
 
         cartRecyclerView.setLayoutManager(new LinearLayoutManager(this));
         cartRecyclerView.setAdapter(cartAdapter);
-
-        loadCart();
-
-        checkoutBtn.setOnClickListener(v -> {
-            Toast.makeText(CartActivity.this, "Order placed successfully!", Toast.LENGTH_SHORT).show();
-            finish();
-        });
-
-        backBtn.setOnClickListener(v -> finish());
     }
 
     private void loadCart() {
         String userId = FirebaseManager.getCurrentUser().getUid();
         FirebaseManager.getCartItems(userId, task -> {
             if (task.isSuccessful()) {
-                QuerySnapshot snapshot = task.getResult();
+                com.google.firebase.firestore.QuerySnapshot snapshot = task.getResult();
                 cartItems.clear();
-                if (snapshot != null) {
+                productMap.clear();
+
+                if (snapshot != null && !snapshot.isEmpty()) {
                     for (com.google.firebase.firestore.DocumentSnapshot doc : snapshot.getDocuments()) {
                         CartItem cartItem = doc.toObject(CartItem.class);
-                        cartItems.add(cartItem);
-                        loadProductDetails(cartItem.getIdArt());
+                        if (cartItem != null) {
+                            cartItem.setNumPanier(doc.getId());
+                            cartItems.add(cartItem);
+                            loadProductDetails(cartItem.getIdArt());
+                        }
                     }
+                    showCartItems();
+                } else {
+                    showEmptyCart();
                 }
                 cartAdapter.notifyDataSetChanged();
                 calculateTotal();
+            } else {
+                showEmptyCart();
             }
         });
     }
 
     private void loadProductDetails(String productId) {
         FirebaseManager.getProductById(productId, task -> {
-            if (task.isSuccessful()) {
+            if (task.isSuccessful() && task.getResult() != null) {
                 Product product = task.getResult().toObject(Product.class);
                 if (product != null) {
                     productMap.put(productId, product);
@@ -97,18 +120,53 @@ public class CartActivity extends AppCompatActivity {
             if (task.isSuccessful()) {
                 Toast.makeText(CartActivity.this, "Item removed from cart", Toast.LENGTH_SHORT).show();
                 loadCart();
+            } else {
+                Toast.makeText(CartActivity.this, "Failed to remove item", Toast.LENGTH_SHORT).show();
             }
         });
     }
 
+    private void clearCart() {
+        // Remove all cart items
+        for (CartItem item : cartItems) {
+            FirebaseManager.removeFromCart(item.getNumPanier(), task -> {
+                // Individual removal callbacks
+            });
+        }
+        cartItems.clear();
+        productMap.clear();
+        cartAdapter.notifyDataSetChanged();
+        showEmptyCart();
+        calculateTotal();
+    }
+
     private void calculateTotal() {
-        double total = 0;
+        double subtotal = 0;
         for (CartItem item : cartItems) {
             if (productMap.containsKey(item.getIdArt())) {
                 Product product = productMap.get(item.getIdArt());
-                total += product.getPrixArt() * item.getQuantité();
+                subtotal += product.getPrixArt() * item.getQuantité();
             }
         }
-        totalPriceText.setText(String.format("Total: $%.2f", total));
+
+        subtotalText.setText(String.format("$%.2f", subtotal));
+        totalPriceText.setText(String.format("$%.2f", subtotal)); // Free shipping
+
+        // Update checkout button text with item count
+        int totalItems = cartItems.size();
+        checkoutBtn.setText(totalItems > 0 ?
+                String.format("Checkout (%d items)", totalItems) : "Proceed to Checkout");
+    }
+
+    private void showCartItems() {
+        cartRecyclerView.setVisibility(View.VISIBLE);
+        emptyCartState.setVisibility(View.GONE);
+    }
+
+    private void showEmptyCart() {
+        cartRecyclerView.setVisibility(View.GONE);
+        emptyCartState.setVisibility(View.VISIBLE);
+        totalPriceText.setText("$0.00");
+        subtotalText.setText("$0.00");
     }
 }

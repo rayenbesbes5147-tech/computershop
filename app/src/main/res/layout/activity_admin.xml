@@ -1,0 +1,81 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:orientation="vertical"
+    android:padding="20dp"
+    android:gravity="center">
+
+    <TextView
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="🔐 Admin Portal"
+        android:textSize="36sp"
+        android:textStyle="bold"
+        android:textColor="#FF6200EE"
+        android:layout_marginBottom="30dp" />
+
+    <CardView xmlns:app="http://schemas.android.com/apk/res-auto"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_marginBottom="30dp"
+        app:cardCornerRadius="12dp"
+        app:cardElevation="8dp"
+        android:background="@android:color/white">
+
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:orientation="vertical"
+            android:padding="20dp">
+
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="Admin Account"
+                android:textSize="16sp"
+                android:textStyle="bold"
+                android:textColor="#333333"
+                android:layout_marginBottom="10dp" />
+
+            <TextView
+                android:id="@+id/adminEmailTv"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:text="Logged in as: admin@gmail.com"
+                android:textSize="14sp"
+                android:textColor="#666666"
+                android:layout_marginBottom="15dp"
+                android:padding="10dp"
+                android:background="#F5F5F5" />
+
+        </LinearLayout>
+
+    </CardView>
+
+    <Button
+        android:id="@+id/viewDashboardBtn"
+        android:layout_width="match_parent"
+        android:layout_height="60dp"
+        android:text="📊 View Dashboard"
+        android:textSize="18sp"
+        android:textStyle="bold"
+        android:textColor="@android:color/white"
+        android:background="@drawable/button_background"
+        android:layout_marginBottom="15dp" />
+
+    <Space
+        android:layout_width="match_parent"
+        android:layout_height="0dp"
+        android:layout_weight="1" />
+
+    <Button
+        android:id="@+id/logoutBtn"
+        android:layout_width="match_parent"
+        android:layout_height="50dp"
+        android:text="🚪 Logout"
+        android:textSize="16sp"
+        android:textColor="@android:color/white"
+        android:background="#FFFF6B6B" />
+
+</LinearLayout>
